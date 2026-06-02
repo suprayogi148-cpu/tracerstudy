@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Career Portal - Tracer Study & Profile</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .sidebar-item { transition: all 0.2s; }
+    .sidebar-item:hover, .sidebar-item.active { background: rgba(37,99,235,0.1); color: #2563eb; }
+    .dropdown-menu { display: none; }
+    .dropdown-menu.show { display: block; }
+    .step { display: none; }
+    .step.active-step { display: block; }
+    .step-indicator { transition: all 0.3s; }
+    .profile-tab { transition: all 0.2s; }
+    .profile-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .info-card { transition: all 0.2s; }
+    .info-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .job-card { transition: all 0.3s ease; cursor: pointer; }
+    .job-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal.show { display: flex; }
+    .modal-content { animation: modalFadeIn 0.3s ease; max-height: 90vh; overflow-y: auto; }
+    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        /* CV Generator Styles */
+    .cv-preview { transition: all 0.3s ease; }
+    .cv-preview:hover { box-shadow: 0 20px 35px -10px rgba(0,0,0,0.15); }
+    .cv-template-card { transition: all 0.3s ease; cursor: pointer; }
+    .cv-template-card:hover { transform: scale(1.02); border-color: #2563eb; }
+    .cv-template-card.active { border-color: #2563eb; background: #eff6ff; }
+    .form-input:focus { border-color: #2563eb; ring: 2px solid #2563eb; }
+    .ats-score { transition: width 0.5s ease; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+
+<script>
+  const APP_DATA = {
+    appName: "Alumni Career Portal",
+    login: {
+      heroTitle: "Portal Karir Alumni",
+      heroSubtitle: "Hubungan seumur hidup dengan almamater tercinta",
+      loginTitle: "Selamat Datang Kembali",
+      loginSubtitle: "Masuk untuk mengakses portal alumni",
+      emailLabel: "Alamat Email",
+      passwordLabel: "Kata Sandi",
+      loginButton: "Masuk ke Dashboard",
+      rememberMe: "Ingat saya"
+    },
+    currentUser: {
+      name: "Ahmad Rizki Pratama",
+      nim: "2019101234",
+      email: "ahmad.rizki@alumni.univ.ac.id",
+      phone: "+62 812 3456 7890",
+      linkedin: "linkedin.com/in/ahmadrizki",
+      studyProgram: "Teknik Informatika",
+      graduationYear: "2023",
+      avatar: "https://ui-avatars.com/api/?background=2563eb&color=fff&name=Ahmad+Rizki&size=128",
+      jobStatus: "Bekerja",
+      company: "PT Teknologi Nusantara",
+      position: "Senior Frontend Developer",
+      completion: 100
+    },
+    menuItems: [
+      { id: 'dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
+      { id: 'profile', icon: 'user', label: 'Profile Saya' },
+      { id: 'career', icon: 'briefcase', label: 'Career Center' },
+      { id: 'cv', icon: 'file-text', label: 'CV Generator' },
+      { id: 'legalisir', icon: 'stamp', label: 'Legalisir Online' }
+    ],
+        jobs: [
+      { 
+        id: 1, 
+        title: "Frontend Developer", 
+        company: "PT Digital Nusantara", 
+        companyLogo: "https://ui-avatars.com/api/?background=3b82f6&color=fff&name=Digital&size=64",
+        location: "Jakarta Selatan", 
+        type: "Full-time", 
+        salary: "Rp 8.000.000 - 15.000.000", 
+        badge: "Baru",
+        posted: "2 hari yang lalu",
+        description: "Kami sedang mencari Frontend Developer yang berpengalaman untuk bergabung dengan tim pengembangan produk kami.",
+        requirements: [
+          "Minimal 2 tahun pengalaman dengan React.js",
+          "Memahami TypeScript",
+          "Pengalaman dengan REST API dan GraphQL",
+          "Familiar dengan Git"
+        ],
+        responsibilities: [
+          "Mengembangkan komponen UI yang reusable",
+          "Berkolaborasi dengan tim backend",
+          "Melakukan optimasi performa aplikasi"
+        ],
+        benefits: [
+          "Gaji kompetitif + bonus tahunan",
+          "BPJS Kesehatan & Ketenagakerjaan",
+          "Wfh flexible 2 hari per minggu"
+        ]
+      },
+      { 
+        id: 2, 
+        title: "Data Analyst", 
+        company: "PT Analitika Data", 
+        companyLogo: "https://ui-avatars.com/api/?background=8b5cf6&color=fff&name=Analitika&size=64",
+        location: "Bandung", 
+        type: "Remote", 
+        salary: "Rp 6.000.000 - 10.000.000", 
+        badge: "3 hari",
+        posted: "5 hari yang lalu",
+        description: "Kami mencari Data Analyst yang memiliki kemampuan analisis data yang kuat.",
+        requirements: [
+          "Minimal 1 tahun pengalaman sebagai Data Analyst",
+          "Mahir menggunakan SQL dan Python",
+          "Pengalaman dengan Tableau atau Power BI"
+        ],
+        responsibilities: [
+          "Mengumpulkan dan menganalisis data",
+          "Membuat dashboard untuk stakeholder",
+          "Mengidentifikasi tren dari data"
+        ],
+        benefits: [
+          "Gaji pokok + tunjangan kinerja",
+          "Work from home full",
+          "Pelatihan sertifikasi data"
+        ]
+      },
+      { 
+        id: 3, 
+        title: "UI/UX Designer", 
+        company: "PT Creative Hub", 
+        companyLogo: "https://ui-avatars.com/api/?background=10b981&color=fff&name=Creative&size=64",
+        location: "Yogyakarta", 
+        type: "Full-time", 
+        salary: "Rp 7.000.000 - 12.000.000", 
+        badge: "Baru",
+        posted: "1 hari yang lalu",
+        description: "Kami mencari UI/UX Designer kreatif untuk produk digital kami.",
+        requirements: [
+          "Portfolio UI/UX",
+          "Mahir menggunakan Figma",
+          "Memahami user-centered design"
+        ],
+        responsibilities: [
+          "Merancang wireframe dan prototype",
+          "Melakukan user research",
+          "Berkolaborasi dengan developer"
+        ],
+        benefits: [
+          "Gaji kompetitif",
+          "Lingkungan kerja kreatif",
+          "Kursus dan sertifikasi desain"
+        ]
+      },
+      { 
+        id: 4, 
+        title: "Backend Engineer", 
+        company: "PT Cloud Indonesia", 
+        companyLogo: "https://ui-avatars.com/api/?background=ef4444&color=fff&name=Cloud&size=64",
+        location: "Jakarta Pusat", 
+        type: "Full-time", 
+        salary: "Rp 10.000.000 - 18.000.000", 
+        badge: "Premium",
+        posted: "3 hari yang lalu",
+        description: "Kami mencari Backend Engineer untuk membangun sistem backend yang scalable.",
+        requirements: [
+          "Minimal 3 tahun backend development",
+          "Mahir menggunakan Node.js atau Golang",
+          "Pengalaman dengan database PostgreSQL"
+        ],
+        responsibilities: [
+          "Mengembangkan API dan layanan backend",
+          "Optimasi database performance",
+          "Memastikan keamanan sistem"
+        ],
+        benefits: [
+          "Gaji di atas rata-rata",
+          "Asuransi kesehatan premium",
+          "Bonus project"
+        ]
+      },
+      { 
+        id: 5, 
+        title: "Digital Marketing", 
+        company: "PT Media Digital", 
+        companyLogo: "https://ui-avatars.com/api/?background=f59e0b&color=fff&name=Media&size=64",
+        location: "Surabaya", 
+        type: "Hybrid", 
+        salary: "Rp 5.000.000 - 8.000.000", 
+        badge: "2 hari",
+        posted: "4 hari yang lalu",
+        description: "Kami mencari Digital Marketing Specialist untuk mengelola kampanye digital.",
+        requirements: [
+          "Pengalaman digital marketing 1 tahun",
+          "Mahir Google Ads dan Meta Ads",
+          "Memahami SEO/SEM"
+        ],
+        responsibilities: [
+          "Menjalankan kampanye iklan digital",
+          "Menganalisis performa kampanye",
+          "Mengelola konten media sosial"
+        ],
+        benefits: [
+          "Gaji pokok + komisi",
+          "Tunjangan transportasi",
+          "Pelatihan digital marketing"
+        ]
+      }
+    ],
+        // CV Templates & Data
+    cvTemplates: [
+      { id: 'professional', name: 'Professional', color: '#2563eb', icon: 'briefcase', accent: 'blue' },
+      { id: 'modern', name: 'Modern', color: '#7c3aed', icon: 'sparkles', accent: 'purple' },
+      { id: 'minimal', name: 'Minimal', color: '#059669', icon: 'feather', accent: 'green' },
+      { id: 'executive', name: 'Executive', color: '#dc2626', icon: 'crown', accent: 'red' }
+    ],
+    cvData: {
+      personal: {
+        fullName: "Ahmad Rizki Pratama, S.Kom",
+        jobTitle: "Senior Frontend Developer",
+        email: "ahmad.rizki@alumni.univ.ac.id",
+        phone: "+62 812 3456 7890",
+        location: "Jakarta, Indonesia",
+        linkedin: "linkedin.com/in/ahmadrizki",
+        github: "github.com/ahmadrizki",
+        portfolio: "ahmadrizki.dev"
+      },
+      summary: "Frontend Developer berpengalaman dengan 3+ tahun di industri teknologi. Spesialisasi dalam React.js, TypeScript, dan pengembangan aplikasi web performa tinggi. Berpengalaman memimpin tim kecil dan menerapkan best practices dalam development.",
+      experience: [
+        { company: "PT Teknologi Nusantara Tbk", position: "Senior Frontend Developer", period: "2023 - Sekarang", location: "Jakarta", description: "Memimpin pengembangan 3 aplikasi utama perusahaan. Meningkatkan performa web hingga 40%. Mentoring 2 junior developer." },
+        { company: "PT Startup Digital Kreasi", position: "Frontend Developer", period: "2021 - 2023", location: "Jakarta", description: "Mengembangkan reusable component library. Berkolaborasi dengan tim backend untuk integrasi API." }
+      ],
+      education: [
+        { degree: "S1 Teknik Informatika", institution: "Universitas Nusantara", year: "2019 - 2023", gpa: "3.78 (Cumlaude)", description: "Mata kuliah unggulan: Pemrograman Web, Database, UI/UX Design" }
+      ],
+      skills: ["React.js", "TypeScript", "Next.js", "Tailwind CSS", "Node.js", "GraphQL", "Git", "Jest", "Figma"],
+      certifications: [
+        { name: "React Developer Certification", issuer: "Meta", year: "2023" },
+        { name: "Frontend Development", issuer: "Dicoding", year: "2022" }
+      ],
+      languages: [
+        { name: "Bahasa Indonesia", level: "Native", levelScore: 100 },
+        { name: "English", level: "Professional Working", levelScore: 85 }
+      ],
+      interests: ["Open Source", "Tech Writing", "UI/UX Design", "Photography"]
+    },
+    tracerData: {
+      // Data Pribadi (LENGKAP dengan data dummy)
+      nama_lengkap: "Ahmad Rizki Pratama, S.Kom",
+      jenis_kelamin: "Laki-laki",
+      tempat_lahir: "Jakarta",
+      tanggal_lahir: "15 Mei 1998",
+      alamat: "Jl. Merdeka Raya No. 45, RT 05/RW 03, Kelurahan Cikini, Kecamatan Menteng",
+      kode_pos: "10330",
+      no_hp: "+62 812 3456 7890",
+      email_tracer: "ahmad.rizki@alumni.univ.ac.id",
+      tahun_masuk: "2019",
+      tahun_lulus: "2023",
+      ipk: "3.78 (Cumlaude)",
+      organisasi: "Ya",
+      alasan_tidak_organisasi: "",
+      sudah_bekerja: "Ya",
+      alasan_tidak_bekerja: "",
+      jeda_waktu: "0-3 bulan",
+      // Pekerjaan Sekarang (LENGKAP)
+      perusahaan_sekarang: "PT Teknologi Nusantara Tbk",
+      jabatan_sekarang: "Senior Frontend Developer - Level 3",
+      mulai_bekerja_sekarang: "Agustus 2023",
+      gaji_pokok: "Rp 7.500.000 - Rp 10.000.000",
+      bidang_pekerjaan: "Teknologi Informasi / Software Development",
+      alamat_kerja: "Gudang54 Tower Lantai 12, Jl. Jenderal Sudirman Kav. 54, Jakarta Selatan 12190",
+      lama_bekerja: "2 tahun 8 bulan",
+      kontak_perusahaan: "(021) 5551234 / career@teknus.co.id",
+      website_perusahaan: "www.teknus.co.id",
+      jumlah_pekerjaan_sebelum: "2",
+      // Pekerjaan Pertama (LENGKAP)
+      perusahaan_pertama: "PT Startup Digital Kreasi",
+      jabatan_pertama: "Junior Web Developer",
+      mulai_pertama: "September 2023",
+      gaji_pertama: "Rp 3.000.000 - Rp 5.000.000",
+      bidang_pertama: "Pengembangan Web",
+      alamat_pertama: "Jl. Kebon Sirih No. 12, Jakarta Pusat",
+      kontak_pertama: "(021) 5556789",
+      website_pertama: "www.startupdigital.co.id",
+      lama_pertama: "1 tahun 2 bulan",
+      // Relevansi (LENGKAP)
+      q1: "Ya",
+      q2: "Ya",
+      q4: "Ya",
+      relevansi_text: "Sangat relevan, terutama mata kuliah Pemrograman Web, Framework Modern (ReactJS), dan Manajemen Proyek Perangkat Lunak. Ilmu yang didapat selama perkuliahan sangat membantu dalam pekerjaan saya saat ini, terutama dalam pengembangan aplikasi berbasis web.",
+      relevan_text: "Pemrograman Web (React, NodeJS), Database (MySQL, PostgreSQL), UI/UX Design, Algoritma dan Struktur Data, Agile Development Methodology",
+      tidak_relevan_text: "Beberapa mata kuliah teori seperti Fisika Dasar dan Kalkulus Lanjut kurang terlalu aplikatif di pekerjaan saya saat ini, namun tetap bermanfaat untuk melatih logika.",
+      // Masukan (LENGKAP)
+      harapan: "1. Kurikulum yang lebih dinamis dan selalu mengikuti perkembangan teknologi industri.\n2. Lebih banyak proyek praktik dan magang yang relevan dengan industri.\n3. Penambahan mata kuliah tentang AI, Machine Learning, dan Cloud Computing.\n4. Sertifikasi kompetensi bagi mahasiswa sebelum lulus.",
+      kegiatan_alumni: "1. Menjadi mentor bagi mahasiswa/i yang sedang mengerjakan proyek akhir.\n2. Berbagi pengalaman melalui seminar atau workshop tentang dunia kerja.\n3. Membantu pengembangan kurikulum dengan memberikan masukan dari perspektif industri.\n4. Menjadi narasumber dalam acara career day.",
+      saran: "1. Perbanyak kerja sama dengan perusahaan teknologi untuk program magang.\n2. Adakan bootcamp atau pelatihan intensif setiap semester.\n3. Tingkatkan fasilitas laboratorium komputer dengan spesifikasi terbaru.\n4. Buat program alumni mentoring untuk membantu mahasiswa/i yang akan lulus.\n5. Selenggarakan kompetisi coding atau hackathon secara rutin."
+    }
+  };
+</script>
+
+<!-- LOGIN PAGE -->
+<div id="page-login" class="page active">
+  <div class="min-h-screen flex">
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 items-center justify-center p-12">
+      <div class="text-center">
+        <div class="w-32 h-32 mx-auto mb-6 bg-white/20 rounded-full flex items-center justify-center">
+          <i data-lucide="graduation-cap" class="w-16 h-16 text-white"></i>
+        </div>
+        <h1 class="text-white text-3xl font-bold mb-3" id="login-hero-title"></h1>
+        <p class="text-blue-100 text-lg" id="login-hero-subtitle"></p>
+      </div>
+    </div>
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="graduation-cap" class="w-8 h-8 text-white"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-1" id="login-title"></h2>
+          <p class="text-gray-500" id="login-subtitle"></p>
+        </div>
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="login-email-label"></label>
+            <input id="login-email" type="email" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="nama@alumni.univ.ac.id">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="login-password-label"></label>
+            <input id="login-password" type="password" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan kata sandi">
+          </div>
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" class="rounded"> <span id="remember-label"></span></label>
+            <a class="text-sm text-blue-600 hover:underline cursor-pointer" id="login-forgot"></a>
+          </div>
+          <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition" id="login-button"></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE TRACER STUDY MULTI-STEP (SETELAH LOGIN, SEBELUM DASHBOARD) -->
+<div id="page-tracer-after-login" class="page">
+  <div class="min-h-screen bg-gray-50 py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <h2 class="text-xl font-bold text-white">Tracer Study Alumni</h2>
+          <p class="text-blue-100 text-sm">Isi data penelusuran lulusan (semua field bersifat opsional)</p>
+        </div>
+        
+        <div class="flex border-b border-gray-200 bg-gray-50 px-6 py-3">
+          <div class="flex-1 text-center step-indicator" data-step="1"><span class="w-8 h-8 rounded-full bg-blue-600 text-white inline-flex items-center justify-center text-sm font-bold">1</span><p class="text-xs mt-1 font-medium text-blue-600">Data Pribadi</p></div>
+          <div class="flex-1 text-center step-indicator" data-step="2"><span class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 inline-flex items-center justify-center text-sm font-bold">2</span><p class="text-xs mt-1 text-gray-500">Pekerjaan</p></div>
+          <div class="flex-1 text-center step-indicator" data-step="3"><span class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 inline-flex items-center justify-center text-sm font-bold">3</span><p class="text-xs mt-1 text-gray-500">Pekerjaan Pertama</p></div>
+          <div class="flex-1 text-center step-indicator" data-step="4"><span class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 inline-flex items-center justify-center text-sm font-bold">4</span><p class="text-xs mt-1 text-gray-500">Relevansi</p></div>
+          <div class="flex-1 text-center step-indicator" data-step="5"><span class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 inline-flex items-center justify-center text-sm font-bold">5</span><p class="text-xs mt-1 text-gray-500">Masukan</p></div>
+        </div>
+        
+        <form id="tracer-multistep-form" class="p-6">
+          <!-- STEP 1: DATA PRIBADI -->
+          <div id="step-1" class="step active-step space-y-4">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">A. Data Pribadi</h3>
+            <div><label class="block text-sm font-medium mb-1">1. Nama Lengkap</label><input type="text" id="nama_lengkap" name="nama_lengkap" class="w-full px-4 py-2 border rounded-lg" placeholder="Masukkan nama lengkap"></div>
+            <div><label class="block text-sm font-medium mb-1">2. Jenis Kelamin</label><select id="jenis_kelamin" name="jenis_kelamin" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">3. Tempat Lahir</label><input type="text" id="tempat_lahir" name="tempat_lahir" class="w-full px-4 py-2 border rounded-lg" placeholder="Contoh: Jakarta"></div>
+            <div><label class="block text-sm font-medium mb-1">4. Tanggal Lahir</label><input type="date" id="tanggal_lahir" name="tanggal_lahir" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">5. Alamat Lengkap</label><textarea id="alamat" name="alamat" rows="2" class="w-full px-4 py-2 border rounded-lg" placeholder="Jl. Contoh No. 123, RT/RW, Kelurahan, Kecamatan, Kota"></textarea></div>
+            <div><label class="block text-sm font-medium mb-1">6. Kode Pos</label><input type="text" id="kode_pos" name="kode_pos" class="w-full px-4 py-2 border rounded-lg" placeholder="Contoh: 10330"></div>
+            <div><label class="block text-sm font-medium mb-1">7. No HP</label><input type="tel" id="no_hp" name="no_hp" class="w-full px-4 py-2 border rounded-lg" placeholder="+62 xxxx"></div>
+            <div><label class="block text-sm font-medium mb-1">8. Email</label><input type="email" id="email_tracer" name="email_tracer" class="w-full px-4 py-2 border rounded-lg" placeholder="email@domain.com"></div>
+            <div><label class="block text-sm font-medium mb-1">9. Tahun Masuk</label><input type="number" id="tahun_masuk" name="tahun_masuk" class="w-full px-4 py-2 border rounded-lg" placeholder="2019"></div>
+            <div><label class="block text-sm font-medium mb-1">10. Tahun Lulus</label><input type="number" id="tahun_lulus" name="tahun_lulus" class="w-full px-4 py-2 border rounded-lg" placeholder="2023"></div>
+            <div><label class="block text-sm font-medium mb-1">11. IPK Terakhir</label><input type="text" id="ipk" name="ipk" class="w-full px-4 py-2 border rounded-lg" placeholder="contoh: 3.50"></div>
+            <div><label class="block text-sm font-medium mb-1">12. Apakah Anda Berorganisasi saat mahasiswa?</label><select id="organisasi" name="organisasi" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="Ya">Ya</option><option value="Tidak">Tidak</option></select></div>
+            <div id="alasan_tidak_organisasi_container" class="hidden"><label class="block text-sm font-medium mb-1">Alasan Tidak Berorganisasi</label><textarea id="alasan_tidak_organisasi" name="alasan_tidak_organisasi" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>
+            <div><label class="block text-sm font-medium mb-1">13. Apakah anda sudah bekerja?</label><select id="sudah_bekerja" name="sudah_bekerja" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="Ya">Ya</option><option value="Tidak">Tidak</option></select></div>
+            <div id="alasan_tidak_bekerja_container" class="hidden"><label class="block text-sm font-medium mb-1">Alasan tidak bekerja</label><textarea id="alasan_tidak_bekerja" name="alasan_tidak_bekerja" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>
+            <div><label class="block text-sm font-medium mb-1">14. Jeda waktu kerja dari kelulusan?</label><select id="jeda_waktu" name="jeda_waktu" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="0-3 bulan">0-3 bulan</option><option value="4-6 bulan">4-6 bulan</option><option value="7-12 bulan">7-12 bulan</option><option value=">12 bulan">&gt;12 bulan</option></select></div>
+          </div>
+          
+          <!-- STEP 2: PEKERJAAN SEKARANG -->
+          <div id="step-2" class="step space-y-4">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">B. Pekerjaan Sekarang</h3>
+            <div><label class="block text-sm font-medium mb-1">1. Perusahaan tempat anda bekerja sekarang?</label><input type="text" id="perusahaan_sekarang" name="perusahaan_sekarang" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">2. Jabatan/posisi sekarang?</label><input type="text" id="jabatan_sekarang" name="jabatan_sekarang" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">3. Bulan dan tahun pertama bekerja?</label><input type="month" id="mulai_bekerja_sekarang" name="mulai_bekerja_sekarang" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">4. Gaji Pokok saat ini</label><select id="gaji_pokok" name="gaji_pokok" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="< Rp.1jt">&lt; Rp.1.000.000</option><option value="Rp.1-3jt">Rp.1-3jt</option><option value="Rp.3-5jt">Rp.3-5jt</option><option value="Rp.5-7.5jt">Rp.5-7.5jt</option><option value=">Rp.7.5jt">&gt; Rp.7.5jt</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">5. Bidang Pekerjaan</label><input type="text" id="bidang_pekerjaan" name="bidang_pekerjaan" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">6. Alamat tempat kerja</label><input type="text" id="alamat_kerja" name="alamat_kerja" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">7. Lama bekerja diperusahaan sekarang?</label><input type="text" id="lama_bekerja" name="lama_bekerja" class="w-full px-4 py-2 border rounded-lg" placeholder="contoh: 2 tahun"></div>
+          </div>
+          
+          <!-- STEP 3: PEKERJAAN PERTAMA -->
+          <div id="step-3" class="step space-y-4">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">C. Pekerjaan Pertama</h3>
+            <div><label class="block text-sm font-medium mb-1">1. Perusahaan tempat anda bekerja pertama?</label><input type="text" id="perusahaan_pertama" name="perusahaan_pertama" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">2. Jabatan/posisi pada pekerjaan pertama?</label><input type="text" id="jabatan_pertama" name="jabatan_pertama" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">3. Bulan dan tahun pertama bekerja?</label><input type="month" id="mulai_pertama" name="mulai_pertama" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">4. Gaji Pada Pekerjaan pertama?</label><select id="gaji_pertama" name="gaji_pertama" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="< Rp.1jt">&lt; Rp.1jt</option><option value="Rp.1-3jt">Rp.1-3jt</option><option value="Rp.3-5jt">Rp.3-5jt</option><option value=">Rp.7.5jt">&gt; Rp.7.5jt</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">5. Bidang Pekerjaan?</label><input type="text" id="bidang_pertama" name="bidang_pertama" class="w-full px-4 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium mb-1">6. Lama Bekerja diperusahaan pertama?</label><input type="text" id="lama_pertama" name="lama_pertama" class="w-full px-4 py-2 border rounded-lg" placeholder="contoh: 1 tahun"></div>
+          </div>
+          
+          <!-- STEP 4: RELEVANSI -->
+          <div id="step-4" class="step space-y-4">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">D. Relevansi Pendidikan dengan Pekerjaan</h3>
+            <div><label class="block text-sm font-medium mb-1">1. Mata kuliah berperan dalam meningkatkan karir?</label><select id="q1" name="q1" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="Ya">Ya</option><option value="Tidak">Tidak</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">2. Mata kuliah membantu pengembangan diri?</label><select id="q2" name="q2" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="Ya">Ya</option><option value="Tidak">Tidak</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">3. Prestasi Akademik berpengaruh dalam posisi pekerjaan?</label><select id="q4" name="q4" class="w-full px-4 py-2 border rounded-lg"><option value="">Pilih</option><option value="Ya">Ya</option><option value="Tidak">Tidak</option></select></div>
+            <div><label class="block text-sm font-medium mb-1">4. Relevansi pekerjaan sekarang dengan latar belakang pendidikan?</label><textarea id="relevansi_text" name="relevansi_text" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>
+          </div>
+          
+          <!-- STEP 5: MASUKAN -->
+          <div id="step-5" class="step space-y-4">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">E. Masukan</h3>
+            <div><label class="block text-sm font-medium mb-1">1. Harapan Anda mengenai proses pembelajaran?</label><textarea id="harapan" name="harapan" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>
+            <div><label class="block text-sm font-medium mb-1">2. Saran untuk Program Studi?</label><textarea id="saran" name="saran" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>
+          </div>
+          
+          <div class="flex justify-between mt-8 pt-4 border-t">
+            <button type="button" id="prev-btn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hidden">← Sebelumnya</button>
+            <button type="button" id="next-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg">Selanjutnya →</button>
+            <button type="submit" id="submit-btn" class="px-6 py-2 bg-green-600 text-white rounded-lg hidden">Submit Tracer Study</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP LAYOUT -->
+<div id="app-layout" class="hidden min-h-screen flex">
+  <aside class="w-64 bg-white border-r fixed h-full z-30">
+    <div class="p-5 border-b flex items-center gap-3">
+      <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center"><i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i></div>
+      <span class="font-bold text-gray-900" id="sidebar-brand"></span>
+    </div>
+    <nav id="sidebar-nav" class="flex-1 p-3 space-y-1"></nav>
+  </aside>
+  <div class="flex-1 ml-64">
+    <header class="sticky top-0 z-20 bg-white border-b px-6 py-3 flex justify-between items-center">
+      <h2 id="page-title-nav" class="font-semibold text-gray-800">Dashboard</h2>
+      <div class="relative">
+        <button id="profile-btn" class="flex items-center gap-2 focus:outline-none">
+          <img id="nav-avatar" class="w-8 h-8 rounded-full object-cover"><span id="nav-username" class="text-sm font-medium text-gray-700"></span><i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+        </button>
+        <div id="dropdown-menu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+          <button onclick="navigateTo('profile')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> Profile</button>
+          <hr class="my-1"><button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"><i data-lucide="log-out" class="w-4 h-4"></i> Logout</button>
+        </div>
+      </div>
+    </header>
+    <main class="p-6"><div id="page-container"></div></main>
+
+  </div>
+  <!-- MODAL DETAIL LOWONGAN -->
+    <div id="job-modal" class="modal">
+      <div class="modal-content bg-white rounded-2xl max-w-4xl w-full mx-4">
+        <div id="modal-body"></div>
+      </div>
+    </div>
+        <!-- MODAL CV PREVIEW FULL -->
+    <div id="cv-preview-modal" class="modal">
+      <div class="modal-content bg-white rounded-2xl max-w-5xl w-full mx-4">
+        <div id="cv-modal-body"></div>
+      </div>
+    </div>
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 5;
+  
+  function updateStepUI() {
+    for(let i=1; i<=totalSteps; i++) {
+      const stepDiv = document.getElementById(`step-${i}`);
+      if(stepDiv) stepDiv.classList.toggle('active-step', i === currentStep);
+      const indicator = document.querySelector(`.step-indicator[data-step="${i}"]`);
+      if(indicator) {
+        const circle = indicator.querySelector('span');
+        if(i < currentStep) { circle.classList.remove('bg-gray-300', 'bg-blue-600'); circle.classList.add('bg-green-600'); circle.innerText = '✓'; }
+        else if(i === currentStep) { circle.classList.remove('bg-gray-300', 'bg-green-600'); circle.classList.add('bg-blue-600'); circle.innerText = i; }
+        else { circle.classList.remove('bg-blue-600', 'bg-green-600'); circle.classList.add('bg-gray-300'); circle.innerText = i; }
+      }
+    }
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    if(currentStep === 1) prevBtn.classList.add('hidden');
+    else prevBtn.classList.remove('hidden');
+    if(currentStep === totalSteps) { nextBtn.classList.add('hidden'); submitBtn.classList.remove('hidden'); }
+    else { nextBtn.classList.remove('hidden'); submitBtn.classList.add('hidden'); }
+  }
+  
+  function nextStep() { if(currentStep < totalSteps) { currentStep++; updateStepUI(); window.scrollTo(0,0); } }
+  function prevStep() { if(currentStep > 1) { currentStep--; updateStepUI(); window.scrollTo(0,0); } }
+  
+  document.getElementById('organisasi')?.addEventListener('change', (e) => {
+    document.getElementById('alasan_tidak_organisasi_container').classList.toggle('hidden', e.target.value !== 'Tidak');
+  });
+  document.getElementById('sudah_bekerja')?.addEventListener('change', (e) => {
+    document.getElementById('alasan_tidak_bekerja_container').classList.toggle('hidden', e.target.value !== 'Tidak');
+  });
+  
+  document.getElementById('prev-btn')?.addEventListener('click', prevStep);
+  document.getElementById('next-btn')?.addEventListener('click', nextStep);
+  
+  // SUBMIT TRACER - LANGSUNG KE DASHBOARD
+  const tracerForm = document.getElementById('tracer-multistep-form');
+  if(tracerForm) {
+    tracerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const formData = new FormData(tracerForm);
+      for(let [key,value] of formData.entries()) {
+        if(value) APP_DATA.tracerData[key] = value;
+      }
+      
+      if(document.getElementById('sudah_bekerja')?.value === 'Ya') {
+        APP_DATA.currentUser.jobStatus = 'Bekerja';
+      } else if(document.getElementById('sudah_bekerja')?.value === 'Tidak') {
+        APP_DATA.currentUser.jobStatus = 'Tidak Bekerja';
+      }
+      if(document.getElementById('perusahaan_sekarang')?.value) {
+        APP_DATA.currentUser.company = document.getElementById('perusahaan_sekarang').value;
+      }
+      if(document.getElementById('jabatan_sekarang')?.value) {
+        APP_DATA.currentUser.position = document.getElementById('jabatan_sekarang').value;
+      }
+      APP_DATA.currentUser.completion = 100;
+      
+      alert('Terima kasih! Data tracer study berhasil disimpan.');
+      
+      document.getElementById('page-tracer-after-login').classList.remove('active');
+      document.getElementById('app-layout').classList.remove('hidden');
+      
+      document.getElementById('nav-username').innerText = APP_DATA.currentUser.name;
+      document.getElementById('nav-avatar').src = APP_DATA.currentUser.avatar;
+      
+      renderSidebar();
+      renderPage('dashboard');
+      navigateTo('dashboard');
+      
+      return false;
+    });
+  }
+  
+  // ========== RENDER PROFILE PAGE DENGAN DATA DUMMY LENGKAP ==========
+  function renderProfilePage() {
+    const u = APP_DATA.currentUser;
+    const t = APP_DATA.tracerData;
+    
+    return `
+      <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+          <div class="bg-gradient-to-r from-blue-600 to-blue-700 h-32 relative">
+            <div class="absolute -bottom-12 left-6">
+              <img src="${u.avatar}" class="w-24 h-24 rounded-full border-4 border-white object-cover shadow-lg">
+            </div>
+            <div class="absolute bottom-4 right-6">
+              <button onclick="alert('Fitur edit profile akan segera hadir')" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit Profile</button>
+            </div>
+          </div>
+          <div class="pt-16 px-6 pb-6">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900">${t.nama_lengkap}</h3>
+                <p class="text-gray-500">${t.jabatan_sekarang} • NIM: ${u.nim}</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">${t.sudah_bekerja === 'Ya' ? '✓ Bekerja' : 'Status Tidak Bekerja'}</span>
+                  <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">🎓 Lulusan ${t.tahun_lulus}</span>
+                  <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">⭐ IPK ${t.ipk}</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="alert('Download CV ${u.name}')" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-50 transition flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download CV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap gap-1 border-b border-gray-200 mb-6 bg-white rounded-t-xl px-4">
+          <button onclick="showProfileTab('personal')" id="tab-personal-btn" class="profile-tab active px-5 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 transition">📋 Data Pribadi</button>
+          <button onclick="showProfileTab('education')" id="tab-education-btn" class="profile-tab px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition">🎓 Pendidikan & Organisasi</button>
+          <button onclick="showProfileTab('current-job')" id="tab-current-job-btn" class="profile-tab px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition">💼 Pekerjaan Sekarang</button>
+          <button onclick="showProfileTab('first-job')" id="tab-first-job-btn" class="profile-tab px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition">👔 Pekerjaan Pertama</button>
+          <button onclick="showProfileTab('relevance')" id="tab-relevance-btn" class="profile-tab px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition">📊 Relevansi</button>
+          <button onclick="showProfileTab('feedback')" id="tab-feedback-btn" class="profile-tab px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition">💡 Masukan</button>
+        </div>
+        
+        <!-- TAB 1: DATA PRIBADI -->
+        <div id="tab-personal" class="profile-tab-content">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 info-card">
+              <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-blue-600"></i></div><h4 class="font-semibold text-gray-800">Informasi Dasar</h4></div>
+              <div class="space-y-3"><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">Nama Lengkap</span><span class="font-medium text-gray-800">${t.nama_lengkap}</span></div><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">Jenis Kelamin</span><span class="font-medium text-gray-800">${t.jenis_kelamin}</span></div><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">Tempat, Tanggal Lahir</span><span class="font-medium text-gray-800">${t.tempat_lahir}, ${t.tanggal_lahir}</span></div></div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 info-card">
+              <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-green-600"></i></div><h4 class="font-semibold text-gray-800">Alamat & Kontak</h4></div>
+              <div class="space-y-3"><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">Alamat</span><span class="font-medium text-gray-800">${t.alamat}</span></div><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">Kode Pos</span><span class="font-medium text-gray-800">${t.kode_pos}</span></div><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">No HP</span><span class="font-medium text-gray-800">${t.no_hp}</span></div><div class="flex justify-between py-2 border-b"><span class="text-gray-500 text-sm">Email</span><span class="font-medium text-gray-800">${t.email_tracer}</span></div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TAB 2: PENDIDIKAN & ORGANISASI -->
+        <div id="tab-education" class="profile-tab-content hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 info-card">
+              <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><i data-lucide="school" class="w-5 h-5 text-blue-600"></i></div><h4 class="font-semibold text-gray-800">Pendidikan Formal</h4></div>
+              <div><p class="text-gray-800 font-medium">${u.studyProgram}</p><p class="text-gray-500 text-sm">Universitas Nusantara | ${t.tahun_masuk} - ${t.tahun_lulus}</p><p class="text-gray-500 text-sm">IPK: ${t.ipk}</p><p class="text-gray-500 text-sm mt-2">Status: Lulus tepat waktu (4 tahun)</p></div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 info-card">
+              <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-green-600"></i></div><h4 class="font-semibold text-gray-800">Pengalaman Organisasi</h4></div>
+              <div><p class="text-gray-800 font-medium">Status: ${t.organisasi}</p><div class="mt-2 p-3 bg-gray-50 rounded-lg"><p class="text-sm text-gray-700">✨ Ketua Himpunan Mahasiswa Teknik Informatika (2021-2022)</p><p class="text-sm text-gray-700 mt-1">✨ Koordinator Divisi Acara Dies Natalis (2020)</p><p class="text-sm text-gray-700 mt-1">✨ Anggota BEM Fakultas (2019-2020)</p></div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TAB 3: PEKERJAAN SEKARANG -->
+        <div id="tab-current-job" class="profile-tab-content hidden">
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5 text-white"></i></div><h4 class="font-semibold text-gray-800">Detail Pekerjaan Sekarang</h4></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Perusahaan</label><p class="font-medium text-gray-800">${t.perusahaan_sekarang}</p></div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Jabatan</label><p class="font-medium text-gray-800">${t.jabatan_sekarang}</p></div><div><label class="text-xs text-gray-500 uppercase tracking-wide">Mulai Bekerja</label><p class="font-medium text-gray-800">${t.mulai_bekerja_sekarang}</p></div></div>
+              <div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Gaji Pokok</label><p class="font-medium text-green-600">${t.gaji_pokok} / bulan</p></div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Bidang Pekerjaan</label><p class="font-medium text-gray-800">${t.bidang_pekerjaan}</p></div><div><label class="text-xs text-gray-500 uppercase tracking-wide">Lama Bekerja</label><p class="font-medium text-gray-800">${t.lama_bekerja}</p></div></div>
+            </div>
+            <div class="mt-4 pt-4 border-t"><label class="text-xs text-gray-500 uppercase tracking-wide">Alamat Kantor</label><p class="font-medium text-gray-800">${t.alamat_kerja}</p></div>
+            <div class="mt-3 grid grid-cols-2 gap-4"><div><label class="text-xs text-gray-500 uppercase tracking-wide">Kontak Perusahaan</label><p class="text-sm text-gray-800">${t.kontak_perusahaan}</p></div><div><label class="text-xs text-gray-500 uppercase tracking-wide">Website</label><p class="text-sm text-blue-600">${t.website_perusahaan}</p></div></div>
+          </div>
+        </div>
+        
+        <!-- TAB 4: PEKERJAAN PERTAMA -->
+        <div id="tab-first-job" class="profile-tab-content hidden">
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"><i data-lucide="briefcase" class="w-5 h-5 text-purple-600"></i></div><h4 class="font-semibold text-gray-800">Riwayat Pekerjaan Pertama</h4></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Perusahaan</label><p class="font-medium text-gray-800">${t.perusahaan_pertama}</p></div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Jabatan</label><p class="font-medium text-gray-800">${t.jabatan_pertama}</p></div><div><label class="text-xs text-gray-500 uppercase tracking-wide">Mulai Bekerja</label><p class="font-medium text-gray-800">${t.mulai_pertama}</p></div></div>
+              <div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Gaji</label><p class="font-medium text-green-600">${t.gaji_pertama}</p></div><div class="mb-3"><label class="text-xs text-gray-500 uppercase tracking-wide">Bidang Pekerjaan</label><p class="font-medium text-gray-800">${t.bidang_pertama}</p></div><div><label class="text-xs text-gray-500 uppercase tracking-wide">Lama Bekerja</label><p class="font-medium text-gray-800">${t.lama_pertama}</p></div></div>
+            </div>
+            <div class="mt-4 pt-4 border-t"><label class="text-xs text-gray-500 uppercase tracking-wide">Jumlah Pekerjaan Sebelum Pekerjaan Sekarang</label><p class="font-medium text-gray-800">${t.jumlah_pekerjaan_sebelum} perusahaan</p></div>
+          </div>
+        </div>
+        
+        <!-- TAB 5: RELEVANSI -->
+        <div id="tab-relevance" class="profile-tab-content hidden">
+          <div class="grid grid-cols-1 gap-5">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h4 class="font-semibold text-gray-800 mb-4">📊 Penilaian Relevansi Pendidikan dengan Pekerjaan</h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-green-50 rounded-lg p-3 text-center"><p class="text-sm text-gray-600">Mata kuliah berperan dalam karir</p><p class="text-xl font-bold text-green-600">${t.q1}</p></div>
+                <div class="bg-green-50 rounded-lg p-3 text-center"><p class="text-sm text-gray-600">Membantu pengembangan diri</p><p class="text-xl font-bold text-green-600">${t.q2}</p></div>
+                <div class="bg-green-50 rounded-lg p-3 text-center"><p class="text-sm text-gray-600">Prestasi akademik berpengaruh</p><p class="text-xl font-bold text-green-600">${t.q4}</p></div>
+              </div>
+              <div class="mb-4"><label class="text-xs text-gray-500 uppercase tracking-wide">Relevansi pendidikan dengan pekerjaan</label><p class="text-gray-700 mt-1 bg-gray-50 p-3 rounded-lg">${t.relevansi_text}</p></div>
+              <div class="mb-4"><label class="text-xs text-gray-500 uppercase tracking-wide">Pengetahuan/keterampilan paling relevan</label><p class="text-gray-700 mt-1 bg-gray-50 p-3 rounded-lg">${t.relevan_text}</p></div>
+              <div><label class="text-xs text-gray-500 uppercase tracking-wide">Pengetahuan/keterampilan paling tidak relevan</label><p class="text-gray-700 mt-1 bg-gray-50 p-3 rounded-lg">${t.tidak_relevan_text}</p></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TAB 6: MASUKAN -->
+        <div id="tab-feedback" class="profile-tab-content hidden">
+          <div class="grid grid-cols-1 gap-5">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"><i data-lucide="message-circle" class="w-5 h-5 text-yellow-600"></i></div><h4 class="font-semibold text-gray-800">Masukan untuk Program Studi Keperawatan Polsub</h4></div>
+              <div class="mb-4"><label class="text-xs text-gray-500 uppercase tracking-wide">Harapan mengenai proses pembelajaran</label><div class="mt-2 p-3 bg-gray-50 rounded-lg whitespace-pre-line">${t.harapan}</div></div>
+              <div class="mb-4"><label class="text-xs text-gray-500 uppercase tracking-wide">Kegiatan yang dapat dilakukan Alumni</label><div class="mt-2 p-3 bg-gray-50 rounded-lg whitespace-pre-line">${t.kegiatan_alumni}</div></div>
+              <div><label class="text-xs text-gray-500 uppercase tracking-wide">Saran untuk Program Studi</label><div class="mt-2 p-3 bg-gray-50 rounded-lg whitespace-pre-line">${t.saran}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function showProfileTab(tabId) {
+    document.querySelectorAll('.profile-tab-content').forEach(content => content.classList.add('hidden'));
+    document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
+    document.querySelectorAll('.profile-tab').forEach(btn => {
+      btn.classList.remove('active', 'text-blue-600', 'border-blue-600');
+      btn.classList.add('text-gray-500', 'border-transparent');
+    });
+    const activeBtn = document.getElementById(`tab-${tabId}-btn`);
+    if(activeBtn) {
+      activeBtn.classList.remove('text-gray-500', 'border-transparent');
+      activeBtn.classList.add('active', 'text-blue-600', 'border-blue-600');
+    }
+  }
+
+    // ========== RENDER CAREER CENTER MODERN ==========
+  function renderCareerCenter() {
+    const jobs = APP_DATA.jobs;
+    const categories = ["Semua", "Full-time", "Remote", "Hybrid", "Premium"];
+    
+    return `
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 mb-8 text-white">
+          <h1 class="text-3xl font-bold mb-2">Career Center</h1>
+          <p class="text-blue-100">Temukan peluang karir terbaik untuk masa depanmu</p>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+              <i data-lucide="search" class="absolute left-3 top-3 w-5 h-5 text-gray-400"></i>
+              <input type="text" id="search-jobs" placeholder="Cari lowongan berdasarkan judul atau perusahaan..." class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0" id="category-filters">
+              ${categories.map(cat => `<button onclick="filterJobsByCategory('${cat}')" class="category-filter px-4 py-2 rounded-lg text-sm font-medium transition ${cat === 'Semua' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">${cat}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-xl p-4 shadow-sm text-center"><i data-lucide="briefcase" class="w-6 h-6 text-blue-600 mx-auto mb-2"></i><p class="text-2xl font-bold">${jobs.length}</p><p class="text-xs text-gray-500">Total Lowongan</p></div>
+          <div class="bg-white rounded-xl p-4 shadow-sm text-center"><i data-lucide="building-2" class="w-6 h-6 text-green-600 mx-auto mb-2"></i><p class="text-2xl font-bold">${new Set(jobs.map(j=>j.company)).size}</p><p class="text-xs text-gray-500">Perusahaan</p></div>
+          <div class="bg-white rounded-xl p-4 shadow-sm text-center"><i data-lucide="map-pin" class="w-6 h-6 text-purple-600 mx-auto mb-2"></i><p class="text-2xl font-bold">${new Set(jobs.map(j=>j.location.split(' ')[0])).size}</p><p class="text-xs text-gray-500">Kota</p></div>
+          <div class="bg-white rounded-xl p-4 shadow-sm text-center"><i data-lucide="clock" class="w-6 h-6 text-orange-600 mx-auto mb-2"></i><p class="text-2xl font-bold">Baru</p><p class="text-xs text-gray-500">Update Terbaru</p></div>
+        </div>
+        
+        <!-- Job Listings -->
+        <div id="job-listings" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          ${jobs.map(job => renderJobCard(job)).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderJobCard(job) {
+    return `
+      <div class="job-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" onclick="showJobDetail(${job.id})">
+        <div class="p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <img src="${job.companyLogo}" class="w-12 h-12 rounded-lg object-cover">
+              <div><h3 class="font-semibold text-gray-900 text-lg">${job.title}</h3><p class="text-sm text-gray-500">${job.company}</p></div>
+            </div>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${job.badge === 'Premium' ? 'bg-yellow-100 text-yellow-700' : job.badge === 'Baru' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}">${job.badge}</span>
+          </div>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <span class="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"><i data-lucide="map-pin" class="w-3 h-3"></i> ${job.location}</span>
+            <span class="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"><i data-lucide="briefcase" class="w-3 h-3"></i> ${job.type}</span>
+            <span class="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"><i data-lucide="clock" class="w-3 h-3"></i> ${job.posted}</span>
+          </div>
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+            <p class="text-green-600 font-semibold text-sm">${job.salary}</p>
+            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition" onclick="event.stopPropagation(); showJobDetail(${job.id})"><i data-lucide="eye" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Filter functions
+  let currentCategory = "Semua";
+  let currentSearch = "";
+  
+  window.filterJobsByCategory = function(category) {
+    currentCategory = category;
+    applyFilters();
+    // Update active button style
+    document.querySelectorAll('.category-filter').forEach(btn => {
+      btn.classList.remove('bg-blue-600', 'text-white');
+      btn.classList.add('bg-gray-100', 'text-gray-600');
+      if(btn.innerText === category) {
+        btn.classList.remove('bg-gray-100', 'text-gray-600');
+        btn.classList.add('bg-blue-600', 'text-white');
+      }
+    });
+  };
+  
+  window.filterJobsBySearch = function(search) {
+    currentSearch = search;
+    applyFilters();
+  };
+  
+  function applyFilters() {
+    let filtered = APP_DATA.jobs;
+    if(currentCategory !== "Semua") {
+      filtered = filtered.filter(job => job.type === currentCategory || job.badge === currentCategory);
+    }
+    if(currentSearch) {
+      filtered = filtered.filter(job => job.title.toLowerCase().includes(currentSearch.toLowerCase()) || job.company.toLowerCase().includes(currentSearch.toLowerCase()));
+    }
+    const container = document.getElementById('job-listings');
+    if(container) {
+      container.innerHTML = filtered.map(job => renderJobCard(job)).join('');
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+  }
+  
+  // Show job detail modal
+  window.showJobDetail = function(jobId) {
+    const job = APP_DATA.jobs.find(j => j.id === jobId);
+    if(!job) return;
+    
+    const modalBody = document.getElementById('modal-body');
+    modalBody.innerHTML = `
+      <div class="relative">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 bg-white rounded-full p-1"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+          <div class="flex items-center gap-4">
+            <img src="${job.companyLogo}" class="w-16 h-16 rounded-xl bg-white p-2">
+            <div><h2 class="text-2xl font-bold">${job.title}</h2><p class="text-blue-100">${job.company}</p></div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="flex flex-wrap gap-3 mb-6">
+            <span class="flex items-center gap-1 text-sm bg-gray-100 px-3 py-1.5 rounded-full"><i data-lucide="map-pin" class="w-4 h-4"></i> ${job.location}</span>
+            <span class="flex items-center gap-1 text-sm bg-gray-100 px-3 py-1.5 rounded-full"><i data-lucide="briefcase" class="w-4 h-4"></i> ${job.type}</span>
+            <span class="flex items-center gap-1 text-sm bg-gray-100 px-3 py-1.5 rounded-full"><i data-lucide="clock" class="w-4 h-4"></i> ${job.posted}</span>
+            <span class="flex items-center gap-1 text-sm bg-green-100 text-green-700 px-3 py-1.5 rounded-full"><i data-lucide="banknote" class="w-4 h-4"></i> ${job.salary}</span>
+          </div>
+          
+          <div class="mb-6"><h3 class="font-semibold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i> Deskripsi Pekerjaan</h3><p class="text-gray-600">${job.description}</p></div>
+          
+          <div class="mb-6"><h3 class="font-semibold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-blue-600"></i> Requirements</h3><ul class="list-disc pl-5 space-y-1 text-gray-600">${job.requirements.map(req => `<li>${req}</li>`).join('')}</ul></div>
+          
+          <div class="mb-6"><h3 class="font-semibold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-blue-600"></i> Responsibilities</h3><ul class="list-disc pl-5 space-y-1 text-gray-600">${job.responsibilities.map(res => `<li>${res}</li>`).join('')}</ul></div>
+          
+          <div class="mb-6"><h3 class="font-semibold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="gift" class="w-5 h-5 text-blue-600"></i> Benefits</h3><div class="flex flex-wrap gap-2">${job.benefits.map(ben => `<span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">${ben}</span>`).join('')}</div></div>
+          
+          <div class="flex gap-3 pt-4 border-t"><button onclick="applyJob(${job.id})" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"><i data-lucide="send" class="w-4 h-4 inline mr-2"></i> Lamar Sekarang</button><button onclick="closeModal()" class="px-6 py-3 border border-gray-300 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition">Tutup</button></div>
+        </div>
+      </div>
+    `;
+    document.getElementById('job-modal').classList.add('show');
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  };
+  
+  window.closeModal = function() {
+    document.getElementById('job-modal').classList.remove('show');
+  };
+  
+  window.applyJob = function(jobId) {
+    const job = APP_DATA.jobs.find(j => j.id === jobId);
+    alert(`Lamaran Anda untuk posisi "${job.title}" di ${job.company} telah terkirim! Tim HR akan menghubungi Anda dalam 3-5 hari kerja.`);
+    closeModal();
+  };
+
+    // ========== CV GENERATOR MODERN ==========
+  let selectedTemplate = 'professional';
+  
+  function renderCVGenerator() {
+    const templates = APP_DATA.cvTemplates;
+    const cv = APP_DATA.cvData;
+    
+    return `
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 mb-6 text-white">
+          <h1 class="text-2xl font-bold mb-2">CV Generator ATS-Friendly</h1>
+          <p class="text-blue-100">Buat CV profesional yang lolos seleksi ATS (Applicant Tracking System)</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Left Panel - Form & Templates -->
+          <div class="lg:col-span-5 space-y-5">
+            <!-- Template Selection -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"><i data-lucide="layout-template" class="w-5 h-5 text-blue-600"></i> Pilih Template CV</h3>
+              <div class="grid grid-cols-2 gap-3">
+                ${templates.map(tpl => `
+                  <div onclick="selectTemplate('${tpl.id}')" id="template-${tpl.id}" class="cv-template-card p-3 border-2 rounded-lg text-center ${selectedTemplate === tpl.id ? 'active border-blue-500 bg-blue-50' : 'border-gray-200'}">
+                    <div class="w-12 h-12 mx-auto rounded-lg bg-${tpl.accent}-100 flex items-center justify-center mb-2"><i data-lucide="${tpl.icon}" class="w-6 h-6 text-${tpl.accent}-600"></i></div>
+                    <p class="text-sm font-medium">${tpl.name}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <!-- ATS Score Card -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5 text-green-600"></i> ATS Score</h3>
+                <span class="text-2xl font-bold text-green-600" id="ats-score-value">94</span><span class="text-green-600">/100</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5 mb-3"><div class="bg-green-600 h-2.5 rounded-full ats-score" style="width: 94%"></div></div>
+              <p class="text-xs text-gray-600">✅ CV Anda sudah optimal untuk ATS. Gunakan kata kunci yang relevan dengan pekerjaan yang dilamar.</p>
+            </div>
+            
+            <!-- Quick Edit Info -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i> Informasi Cepat</h3>
+              <div class="space-y-3">
+                <div><label class="text-xs text-gray-500">Nama Lengkap</label><input type="text" id="cv-name" value="${cv.personal.fullName}" class="form-input w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"></div>
+                <div><label class="text-xs text-gray-500">Job Title</label><input type="text" id="cv-title" value="${cv.personal.jobTitle}" class="form-input w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"></div>
+                <div><label class="text-xs text-gray-500">Email</label><input type="email" id="cv-email" value="${cv.personal.email}" class="form-input w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"></div>
+                <div><label class="text-xs text-gray-500">No Telepon</label><input type="text" id="cv-phone" value="${cv.personal.phone}" class="form-input w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"></div>
+                <button onclick="updateCVPreview()" class="w-full mt-2 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">Update Preview</button>
+              </div>
+            </div>
+            
+            <!-- Download Options -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"><i data-lucide="download" class="w-5 h-5 text-green-600"></i> Unduh CV</h3>
+              <div class="flex gap-3">
+                <button onclick="downloadCV('pdf')" class="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition flex items-center justify-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> PDF</button>
+                <button onclick="downloadCV('doc')" class="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2"><i data-lucide="file" class="w-4 h-4"></i> DOC</button>
+              </div>
+              <p class="text-xs text-gray-500 text-center mt-3">*CV yang diunduh sudah optimized untuk ATS</p>
+            </div>
+          </div>
+          
+          <!-- Right Panel - CV Preview -->
+          <div class="lg:col-span-7">
+            <div class="sticky top-6">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2"><i data-lucide="eye" class="w-5 h-5 text-blue-600"></i> Preview CV</h3>
+                <button onclick="showFullCVPreview()" class="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"><i data-lucide="maximize-2" class="w-4 h-4"></i> Lihat Full</button>
+              </div>
+              <div id="cv-preview-container" class="cv-preview bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                ${renderCVPreview()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderCVPreview() {
+    const cv = APP_DATA.cvData;
+    const tpl = selectedTemplate;
+    
+    // Get updated values from inputs if available
+    const name = document.getElementById('cv-name')?.value || cv.personal.fullName;
+    const title = document.getElementById('cv-title')?.value || cv.personal.jobTitle;
+    const email = document.getElementById('cv-email')?.value || cv.personal.email;
+    const phone = document.getElementById('cv-phone')?.value || cv.personal.phone;
+    
+    const colorClass = tpl === 'professional' ? 'blue' : tpl === 'modern' ? 'purple' : tpl === 'minimal' ? 'green' : 'red';
+    const bgGradient = tpl === 'professional' ? 'from-blue-600 to-blue-700' : tpl === 'modern' ? 'from-purple-600 to-indigo-700' : tpl === 'minimal' ? 'from-green-600 to-emerald-700' : 'from-red-600 to-rose-700';
+    
+    return `
+      <div class="p-6 font-sans">
+        <!-- Header -->
+        <div class="bg-gradient-to-r ${bgGradient} -mx-6 -mt-6 px-6 py-6 mb-6 text-white">
+          <h1 class="text-2xl font-bold">${name}</h1>
+          <p class="text-white/90 text-sm mt-1">${title}</p>
+        </div>
+        
+        <!-- Konten CV -->
+        <div class="space-y-4">
+          <!-- Contact -->
+          <div class="flex flex-wrap gap-3 text-xs text-gray-500 border-b pb-3">
+            <span class="flex items-center gap-1"><i data-lucide="mail" class="w-3 h-3"></i> ${email}</span>
+            <span class="flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${phone}</span>
+            <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${cv.personal.location}</span>
+            <span class="flex items-center gap-1"><i data-lucide="linkedin" class="w-3 h-3"></i> ${cv.personal.linkedin}</span>
+          </div>
+          
+          <!-- Summary -->
+          <div><h3 class="text-sm font-bold text-${colorClass}-600 uppercase tracking-wider mb-2 flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> Profil</h3><p class="text-xs text-gray-600 leading-relaxed">${cv.summary}</p></div>
+          
+          <!-- Experience -->
+          <div><h3 class="text-sm font-bold text-${colorClass}-600 uppercase tracking-wider mb-2 flex items-center gap-2"><i data-lucide="briefcase" class="w-4 h-4"></i> Pengalaman Kerja</h3><div class="space-y-3">${cv.experience.map(exp => `<div><p class="font-semibold text-sm text-gray-800">${exp.position} • ${exp.company}</p><p class="text-xs text-gray-500">${exp.period} | ${exp.location}</p><p class="text-xs text-gray-600 mt-1">${exp.description}</p></div>`).join('')}</div></div>
+          
+          <!-- Education -->
+          <div><h3 class="text-sm font-bold text-${colorClass}-600 uppercase tracking-wider mb-2 flex items-center gap-2"><i data-lucide="graduation-cap" class="w-4 h-4"></i> Pendidikan</h3>${cv.education.map(edu => `<div><p class="font-semibold text-sm text-gray-800">${edu.degree}</p><p class="text-xs text-gray-500">${edu.institution} | ${edu.year}</p><p class="text-xs text-gray-600">IPK: ${edu.gpa}</p></div>`).join('')}</div>
+          
+          <!-- Skills -->
+          <div><h3 class="text-sm font-bold text-${colorClass}-600 uppercase tracking-wider mb-2 flex items-center gap-2"><i data-lucide="code-2" class="w-4 h-4"></i> Keahlian</h3><div class="flex flex-wrap gap-1.5">${cv.skills.map(skill => `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">${skill}</span>`).join('')}</div></div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function updateCVPreview() {
+    const container = document.getElementById('cv-preview-container');
+    if(container) {
+      container.innerHTML = renderCVPreview();
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    updateATSScore();
+  }
+  
+  function selectTemplate(templateId) {
+    selectedTemplate = templateId;
+    document.querySelectorAll('.cv-template-card').forEach(card => {
+      card.classList.remove('active', 'border-blue-500', 'bg-blue-50');
+      card.classList.add('border-gray-200');
+    });
+    const selectedCard = document.getElementById(`template-${templateId}`);
+    if(selectedCard) {
+      selectedCard.classList.remove('border-gray-200');
+      selectedCard.classList.add('active', 'border-blue-500', 'bg-blue-50');
+    }
+    updateCVPreview();
+  }
+  
+  function updateATSScore() {
+    const cv = APP_DATA.cvData;
+    let score = 85;
+    if(cv.skills.length >= 8) score += 5;
+    if(cv.summary.length > 100) score += 3;
+    if(cv.experience.length >= 2) score += 4;
+    if(cv.certifications.length >= 1) score += 3;
+    score = Math.min(score, 99);
+    document.getElementById('ats-score-value')?.setAttribute('data-value', score);
+    const scoreSpan = document.getElementById('ats-score-value');
+    if(scoreSpan) scoreSpan.innerText = score;
+    const progressBar = document.querySelector('.ats-score');
+    if(progressBar) progressBar.style.width = `${score}%`;
+  }
+  
+  function showFullCVPreview() {
+    const modalBody = document.getElementById('cv-modal-body');
+    modalBody.innerHTML = `
+      <div class="relative">
+        <button onclick="closeCVModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 bg-white rounded-full p-1"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <div class="p-6 max-h-[85vh] overflow-y-auto">
+          ${renderCVPreview()}
+          <div class="mt-6 pt-4 border-t flex gap-3">
+            <button onclick="downloadCV('pdf')" class="flex-1 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition flex items-center justify-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> Download PDF</button>
+            <button onclick="closeCVModal()" class="px-6 py-2 border border-gray-300 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition">Tutup</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('cv-preview-modal').classList.add('show');
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  }
+  
+  function closeCVModal() {
+    document.getElementById('cv-preview-modal').classList.remove('show');
+  }
+  
+  function downloadCV(format) {
+    alert(`CV berhasil diunduh dalam format ${format.toUpperCase()}! File CV ATS-Friendly sudah siap.`);
+  }
+  
+  function attachCVEventListeners() {
+    const inputs = ['cv-name', 'cv-title', 'cv-email', 'cv-phone'];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('input', updateCVPreview);
+    });
+  }
+  
+  window.selectTemplate = selectTemplate;
+  window.updateCVPreview = updateCVPreview;
+  window.showFullCVPreview = showFullCVPreview;
+  window.closeCVModal = closeCVModal;
+  window.downloadCV = downloadCV;
+  
+  window.showProfileTab = showProfileTab;
+  
+  function renderSidebar() {
+    const sidebarNav = document.getElementById('sidebar-nav');
+    if(!sidebarNav) return;
+    sidebarNav.innerHTML = '';
+    APP_DATA.menuItems.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 font-medium text-left';
+      btn.dataset.page = item.id;
+      btn.innerHTML = `<i data-lucide="${item.icon}" class="w-4 h-4"></i> ${item.label}`;
+      btn.onclick = () => navigateTo(item.id);
+      sidebarNav.appendChild(btn);
+    });
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  }
+  
+  function renderPage(pageId) {
+    const container = document.getElementById('page-container');
+    if(!container) return;
+    if(pageId === 'dashboard') {
+      container.innerHTML = `<div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 mb-6 text-white"><h3 class="text-xl font-bold">Halo, ${APP_DATA.currentUser.name}!</h3><p class="text-blue-100">Selamat datang di portal karir alumni. Terima kasih telah mengisi tracer study.</p></div><div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">${['Status Kerja', 'Lowongan', 'Legalisir', 'Profil'].map((label,i) => `<div class="bg-white rounded-xl p-4 shadow-sm"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center"><i data-lucide="${['file-check','briefcase','file-text','user-check'][i]}" class="w-5 h-5 text-blue-600"></i></div><div><p class="text-xs text-gray-500">${label}</p><p class="font-bold text-gray-900">${i===0?APP_DATA.currentUser.jobStatus:i===1?APP_DATA.jobs.length+' Lowongan':i===2?'Ajukan':'Lengkap'}</p></div></div></div>`).join('')}</div><div class="bg-white rounded-xl p-5 shadow-sm"><h4 class="font-semibold text-gray-800 mb-4">Lowongan Terbaru</h4><div class="space-y-3">${APP_DATA.jobs.map(job => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"><div><p class="font-medium text-gray-800">${job.title}</p><p class="text-xs text-gray-500">${job.company} • ${job.location}</p></div><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">${job.badge}</span></div>`).join('')}</div></div>`;
+    } else if(pageId === 'profile') {
+      container.innerHTML = renderProfilePage();
+      setTimeout(() => { if(typeof lucide !== 'undefined') lucide.createIcons(); }, 50);
+    } else if(pageId === 'career') {
+      container.innerHTML = renderCareerCenter();
+      setTimeout(() => { 
+        if(typeof lucide !== 'undefined') lucide.createIcons(); 
+        // Setup search functionality
+        const searchInput = document.getElementById('search-jobs');
+        if(searchInput) {
+          searchInput.addEventListener('input', function() {
+            filterJobsBySearch(this.value);
+          });
+        }
+      }, 50);
+        } else if(pageId === 'cv') {
+      container.innerHTML = renderCVGenerator();
+      setTimeout(() => { 
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+        attachCVEventListeners();
+      }, 50);
+    } else if(pageId === 'legalisir') {
+      container.innerHTML = `<div class="bg-white rounded-xl p-6 shadow-sm"><h3 class="font-bold text-xl mb-4">Legalisir Online</h3><form onsubmit="alert('Pengajuan legalisir diterima! Silakan cek status secara berkala.'); return false;"><div class="mb-4"><label class="block text-sm font-medium mb-1">Jenis Dokumen</label><select class="w-full px-4 py-2 border rounded-lg"><option>Ijazah</option><option>Transkrip Nilai</option><option>Surat Keterangan Lulus</option></select></div><div class="mb-4"><label class="block text-sm font-medium mb-1">Jumlah Lembar</label><input type="number" value="2" min="1" class="w-full px-4 py-2 border rounded-lg"></div><div class="mb-4 border-2 border-dashed border-gray-200 rounded-lg p-6 text-center cursor-pointer hover:border-blue-300 transition" id="uploadArea"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i><p class="text-sm text-gray-500">Klik untuk upload file (PDF/JPG, max 5MB)</p></div><button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">Ajukan Legalisir</button></form></div>`;
+    }
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+    document.getElementById('uploadArea')?.addEventListener('click', () => alert('Simulasi upload file'));
+  }
+  
+  function navigateTo(pageId) {
+    renderPage(pageId);
+    const titles = { dashboard:'Dashboard', profile:'Profile Saya', career:'Career Center', cv:'CV Generator', legalisir:'Legalisir' };
+    document.getElementById('page-title-nav').innerText = titles[pageId] || 'Dashboard';
+    document.querySelectorAll('.sidebar-item').forEach(btn => {
+      btn.classList.remove('active');
+      if(btn.dataset.page === pageId) btn.classList.add('active');
+    });
+    document.getElementById('dropdown-menu')?.classList.remove('show');
+    if(pageId === 'profile') setTimeout(() => showProfileTab('personal'), 100);
+  }
+  
+  function initDropdown() {
+    const profileBtn = document.getElementById('profile-btn');
+    const dropdown = document.getElementById('dropdown-menu');
+    if(profileBtn) {
+      profileBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); });
+      document.addEventListener('click', () => dropdown.classList.remove('show'));
+    }
+  }
+  
+  document.getElementById('login-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('page-login').classList.remove('active');
+    document.getElementById('page-tracer-after-login').classList.add('active');
+    currentStep = 1;
+    updateStepUI();
+  });
+  
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    document.getElementById('app-layout').classList.add('hidden');
+    document.getElementById('page-login').classList.add('active');
+  });
+  
+  function applyTexts() {
+    document.getElementById('login-hero-title') && (document.getElementById('login-hero-title').innerText = "Portal Karir Alumni");
+    document.getElementById('login-hero-subtitle') && (document.getElementById('login-hero-subtitle').innerText = "Hubungan seumur hidup dengan almamater");
+    document.getElementById('login-title') && (document.getElementById('login-title').innerText = "Selamat Datang Kembali");
+    document.getElementById('login-subtitle') && (document.getElementById('login-subtitle').innerText = "Masuk untuk mengakses portal alumni");
+    document.getElementById('login-email-label') && (document.getElementById('login-email-label').innerText = "Alamat Email");
+    document.getElementById('login-password-label') && (document.getElementById('login-password-label').innerText = "Kata Sandi");
+    document.getElementById('login-forgot') && (document.getElementById('login-forgot').innerText = "Lupa kata sandi?");
+    document.getElementById('login-button') && (document.getElementById('login-button').innerText = "Masuk ke Dashboard");
+    document.getElementById('remember-label') && (document.getElementById('remember-label').innerText = "Ingat saya");
+    document.getElementById('sidebar-brand') && (document.getElementById('sidebar-brand').innerText = "Alumni Portal");
+  }
+  
+  window.onload = () => { applyTexts(); renderSidebar(); initDropdown(); updateStepUI();     // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('job-modal');
+      const cvModal = document.getElementById('cv-preview-modal');
+      if(event.target === modal) modal.classList.remove('show');
+      if(event.target === cvModal) cvModal.classList.remove('show');
+    }; };
+</script>
+</body>
+</html>
